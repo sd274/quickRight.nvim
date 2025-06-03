@@ -10,9 +10,17 @@ end
 ---@fields stuff string[]
 
 ---@param dir_name string: The name of the file to run
----@return quickWrite.Stuff
+---@return quickWrite.Stuff | nil
 local run_pyright = function(dir_name)
-  vim.print('Running PyRight on ', dir_name)
+  if not dir_name then
+    -- If no argument, prompt the user for input
+    dir_name = vim.fn.input('Enter the directory to check: ')
+    if name == '' then
+      vim.print('No directory entered. Aborting.')
+      return
+    end
+  end
+  vim.print('Running PyRight on ' .. dir_name)
   local handle = io.popen("pyright " .. dir_name .. " --outputjson")
   local output = handle:read("*a")
   local parsed_checks = vim.json.decode(output)
@@ -24,36 +32,29 @@ local run_pyright = function(dir_name)
       bad_file_names,
       {
         filename = bad_files[i]['file'],
-        lnum = 1
+        lnum = bad_files[i]["range"]["start"]["line"],
+        col = bad_files[i]["range"]["start"]["character"],
+        text = bad_files[i]["rule"]
       }
     )
   end
-  local testing = {
-    {
-      filename = "app/api/main.py",
-      lnum = 1
-    },
-    {
-      filename = "app/api/config.py",
-      lnum = 1
-    },
-  }
-  vim.fn.setqflist({}, 'r', {  items = testing })
+  vim.fn.setqflist(bad_file_names)
+  if #bad_file_names > 0 then
+    vim.cmd("copen")
+  else
+    vim.print("No pyright errors found")
+  end
+
   return {
     Stuff = {
       stuff = bad_file_names
     }
-
   }
 end
 
-M.doit = function()
-  local output = run_pyright('app')
-  vim.print(output['Stuff']['stuff'])
+---@param dir_name string: The name of the file to run
+M.doit = function(dir_name)
+  run_pyright(dir_name)
 end
-
--- vim.print(
---   run_pyright('test')
--- )
 
 return M
