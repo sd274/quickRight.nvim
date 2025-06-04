@@ -8,7 +8,7 @@ To install with lazy add the following to your config file
 
 ```lua
 return {
-  dir = "~/Documents/personal/pyright.nvim",
+  "sd274/quickRight.nvim",
   config = function()
     require("quickRight")
   end
@@ -17,4 +17,4 @@ return {
 
 QuickRight can then be ran via `:QuickRight dir_to_check`, if no directory is given then it will prompt you to give one.
 
-Note: This is a very rough plugin, to do some stuff that i find useful, it is not intended to solve all your issues.
+Note: This is a very rough plugin, to do some stuff that I find useful, it is not intended to solve all your issues.
